@@ -8,9 +8,9 @@
 
     public PID(float pFactor, float iFactor, float dFactor)
     {
-        this.pFactor = pFactor;
-        this.iFactor = iFactor;
-        this.dFactor = dFactor;
+        _pFactor = pFactor;
+        _iFactor = iFactor;
+        _dFactor = dFactor;
     }
 
 

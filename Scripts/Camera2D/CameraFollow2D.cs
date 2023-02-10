@@ -6,17 +6,17 @@ public class CameraFollow2D : MonoBehaviour
 {
     public float followSpeed = 8f;
 
-    public GameObject _target;
+    public GameObject target;
 
-    public void setTarget (GameObject target){
-        _target = target;
+    public void setTarget (GameObject newTarget){
+        target = newTarget;
     }
 
 
     void FixedUpdate()
     {
-        Vector3 newTarget = new Vector3(_target.transform.position.x, _target.transform.position.y, Camera.main.transform.position.z);
+        Vector3 newTargetPosition = new Vector3(target.transform.position.x, target.transform.position.y, Camera.main.transform.position.z);
         
-        Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, newTarget, Time.deltaTime * followSpeed);
+        Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, newTargetPosition,  followSpeed);
     }
 }

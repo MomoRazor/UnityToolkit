@@ -12,7 +12,7 @@ public class game_controller : MonoBehaviour
         GameObject spawnedPlayer = Instantiate(player);
         spawnedPlayer.transform.position = Vector3.zero;
 
-        Camera.main.GetComponent<CameraMovement>().player = spawnedPlayer;
+        Camera.main.GetComponent<CameraFollow2D>().setTarget(spawnedPlayer);
     }
 
     public float GetDamageMultiplier()
