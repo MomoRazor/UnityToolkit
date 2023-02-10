@@ -12,7 +12,8 @@ public class CameraFollow2D : MonoBehaviour
         _target = target;
     }
 
-    void Update()
+
+    void FixedUpdate()
     {
         Vector3 newTarget = new Vector3(_target.transform.position.x, _target.transform.position.y, Camera.main.transform.position.z);
         

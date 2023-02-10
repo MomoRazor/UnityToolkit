@@ -17,6 +17,10 @@ public class PlayerMovement2D : MonoBehaviour
         _inputVelocity = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         _inputVelocity = Vector2.ClampMagnitude(_inputVelocity, 1.0f);
 
-        _body.velocity = _inputVelocity * Time.deltaTime * speedMultiplier;
+    }
+
+    void FixedUpdate()
+    {
+        _body.velocity = _inputVelocity * Time.deltaTime * speedMultiplier;     
     }
 }
