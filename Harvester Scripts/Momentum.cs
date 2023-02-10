@@ -6,15 +6,23 @@ public class Momentum : MonoBehaviour
 {
     float momentum = 0f;
     game_controller gameController;
+    ScoreKeeper scoreKeeper;
+
     public float maxDamageMultiplier = 2f;
     public float maxMomentum = 1000f;
     public float momentumLossRate = 2f;
-    private float timer = 0f;
-    private int killStreak = 1;
+
+    public GameObject momentumBar;
+
+    float timer = 0f;
+    int killStreak = 1;
 
     void Start()
     {
-        gameController = GameObject.Find("game_controller").GetComponent<game_controller>();
+        gameController = gameObject.GetComponent<game_controller>();
+        scoreKeeper = gameObject.GetComponent<ScoreKeeper>();
+        
+        UpdateMomentum();
     }
 
     void FixedUpdate()
@@ -23,7 +31,7 @@ public class Momentum : MonoBehaviour
         if (timer >= 1f)
         {
             timer = 0f;
-            AddMomentum(momentumLossRate * -1);
+            DepleteMomentum(momentumLossRate);
         }
     }
 
@@ -32,9 +40,20 @@ public class Momentum : MonoBehaviour
         return momentum;
     }
 
-    void AddMomentum(float addedMomentum)
+    public void AddMomentum(float addedMomentum)
     {
-        momentum += addedMomentum + (killStreak / 2);
+        momentum += addedMomentum + (scoreKeeper.getKs() / 2);
+        UpdateMomentum();     
+    }
+
+    public void DepleteMomentum(float depletedMomentum)
+    {
+        momentum -= depletedMomentum;
+        UpdateMomentum();
+    }
+
+    void UpdateMomentum()
+    {
         if (momentum < 0)
         {
             momentum = 0;
@@ -44,14 +63,7 @@ public class Momentum : MonoBehaviour
             momentum = maxMomentum;
         }
         gameController.SetDamageMultiplier(((momentum / maxMomentum) * ((maxDamageMultiplier) - 1)) + 1);
-    }
 
-    public void ResetKillStreak(){
-        killStreak = 0;
-    }
-
-    public void AddToKillStreak(int multiplier = 1)
-    {
-        killStreak += 1 * multiplier;
+        momentumBar.transform.localScale = new Vector3(momentum / maxMomentum, 1, 1);
     }
 }

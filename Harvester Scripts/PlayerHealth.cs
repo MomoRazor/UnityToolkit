@@ -7,15 +7,22 @@ public class PlayerHealth : MonoBehaviour
     public GameObject healthBarPrefab;
     HealthBar healthBar;
 
-    // private SpriteRenderer hurtRenderer; 
-    public float maxHealth = 100f;
+    public GameObject skeleton;
+    private SpriteRenderer hurtRenderer;
+    public AudioClip hurtSound;
+
+    public float maxHealth = 50f;
+    public float damageInvincibilityTime = 0.3f;
     float currentHealth;
-    float regenRate = 2f;
+    public float secondsToRegen = 5f;
     float regenTimer = 0f;
     float healthBarDisplayDuration = 5f;
     float healthBarDisplayTimer = 0f;
+    float invincibilityTimer = 0f;
     public GameObject gC;
     public GameObject persistor;
+    CapsuleCollider2D collider;
+    Dodge dodge;
 
     void Start()
     {
@@ -24,13 +31,16 @@ public class PlayerHealth : MonoBehaviour
         healthBar.HideHealthBar();
         gC = GameObject.FindGameObjectWithTag("GameController");
         persistor = GameObject.FindGameObjectWithTag("Persistor");
-        // hurtRenderer = gameObject.transform.GetComponent<SpriteRenderer>();
+        collider = gameObject.GetComponent<CapsuleCollider2D>();
+
+        hurtRenderer = skeleton.GetComponent<SpriteRenderer>();
+        dodge = gameObject.GetComponent<Dodge>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         regenTimer += Time.deltaTime;
-        if (regenTimer >= regenRate)
+        if (regenTimer >= secondsToRegen)
         {
             Regen();
             regenTimer = 0f;
@@ -42,11 +52,32 @@ public class PlayerHealth : MonoBehaviour
             healthBarDisplayTimer = 0f;
             healthBar.HideHealthBar();
         }
+
+        if (collider.enabled == false && !dodge.isDodging)
+        {
+            invincibilityTimer -= Time.deltaTime;
+            hurtRenderer.enabled = true;
+            if (invincibilityTimer >= 0.1f && invincibilityTimer <= 0.2f)
+            {
+                hurtRenderer.enabled = false;
+            }
+            if (invincibilityTimer <= 0)
+            {
+                collider.enabled = true;
+                hurtRenderer.enabled = false;
+            }
+        }
+        else if (collider.enabled == true)
+        {
+            if (hurtRenderer.enabled == true)
+            {
+                hurtRenderer.enabled = false;
+            }
+        }
     }
 
     void Regen()
     {
-        // hurtRenderer.enabled = false;
         if (currentHealth < maxHealth)
         {
             currentHealth += 1;
@@ -56,7 +87,8 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        // hurtRenderer.enabled = true;
+        gameObject.GetComponent<AudioSource>().volume = 0.15f;
+        gameObject.GetComponent<AudioSource>().PlayOneShot(hurtSound);
 
         currentHealth -= damage;
         if (currentHealth <= 0)
@@ -70,6 +102,9 @@ public class PlayerHealth : MonoBehaviour
         healthBarDisplayTimer = 0f;
 
         gC.GetComponent<ScoreKeeper>().revertKs();
+
+        collider.enabled = false;
+        invincibilityTimer = damageInvincibilityTime;
     }
 
     void die(){

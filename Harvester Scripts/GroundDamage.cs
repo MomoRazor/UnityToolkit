@@ -8,11 +8,8 @@ public class GroundDamage : MonoBehaviour
     bool takingDamage = false;
     float ticker = 0;
     int lastTick = 0;
-    public int damage = 10;
-
-    void Start () {
-        player = this.gameObject;
-    }
+    public float damage = 10;
+    public bool isPlayer = false;
 
     // Update is called once per frame
     void Update()
@@ -23,18 +20,31 @@ public class GroundDamage : MonoBehaviour
             int tickerInt = Mathf.FloorToInt(ticker);
             if(tickerInt > lastTick){
                 lastTick = tickerInt;
-                player.GetComponent<PlayerHealth>().TakeDamage(damage);
+                if (isPlayer)
+                {
+                    gameObject.GetComponent<PlayerHealth>().TakeDamage(damage);
+                }
+                else
+                {
+                    gameObject.GetComponent<EnemyHealth>().TakeDamage(damage);
+                }               
             }
         }
     }
 
     void OnTriggerStay2D(Collider2D other)
     {
-        takingDamage = true;
+        if (other.gameObject.GetComponent<tile_death>())
+        {
+            takingDamage = true;
+        }      
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        takingDamage = false;
+        if (other.gameObject.GetComponent<tile_death>())
+        {
+            takingDamage = false;
+        }            
     }
 }

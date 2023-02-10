@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class BulletCollision : MonoBehaviour
 {
-
     void OnTriggerEnter2D (Collider2D collider)
     {
         GameObject collidingGameObject = collider.gameObject;
@@ -13,13 +12,16 @@ public class BulletCollision : MonoBehaviour
             {
                 float damage = collidingGameObject.GetComponent<Bullet>().getDamage();
                 gameObject.GetComponent<PlayerHealth>().TakeDamage((int) damage);
-                Destroy(collidingGameObject);   
+                Destroy(collidingGameObject);               
             }
 
         }
         else if(gameObject.tag == "Enemy" && collidingGameObject.tag == "PlayerBullet"){
-            float damage = collidingGameObject.GetComponent<Bullet>().getDamage();
-            gameObject.GetComponent<EnemyHealth>().TakeDamage((int) damage);
+            game_controller game = GameObject.FindWithTag("GameController").GetComponent<game_controller>();
+            game.PlayHitSound();
+
+            float damage = collidingGameObject.GetComponent<Bullet>().getDamage() * game.GetDamageMultiplier();
+            gameObject.GetComponent<EnemyHealth>().TakeDamage((int)damage);
             Destroy(collidingGameObject);
         }
     }

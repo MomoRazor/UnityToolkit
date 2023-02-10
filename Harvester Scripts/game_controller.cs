@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class game_controller : MonoBehaviour
 {
+    public AudioClip hit1;
+    public AudioClip hit2;
+    public AudioClip hit3;
+    bool isPlayingSound;
+    float soundTimeout = 0f;
+
     public GameObject player;
     public island_generator islandGenerator;
     float damageMultiplier = 1f;
@@ -12,7 +18,7 @@ public class game_controller : MonoBehaviour
         GameObject spawnedPlayer = Instantiate(player);
         spawnedPlayer.transform.position = Vector3.zero;
 
-        Camera.main.GetComponent<CameraFollow2D>().setTarget(spawnedPlayer);
+        Camera.main.GetComponent<CameraMovement>().player = spawnedPlayer;
     }
 
     public float GetDamageMultiplier()
@@ -25,7 +31,7 @@ public class game_controller : MonoBehaviour
         damageMultiplier = multiplier;
     }
 
-    // Start is called before the first frame update
+
     void Start()
     {
         islandGenerator.GenerateIsland();
@@ -35,9 +41,38 @@ public class game_controller : MonoBehaviour
         GameObject.FindGameObjectWithTag("Persistor").GetComponent<Persistor>().reset();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (isPlayingSound)
+        {
+            soundTimeout -= Time.deltaTime;
+            if (soundTimeout <= 0)
+            {
+                isPlayingSound = false;
+            }
+        }
     }
+
+
+    public void PlayHitSound()
+    {
+        if(!isPlayingSound)
+        {
+            AudioClip clip;
+            float random = Random.Range(0f, 2f);
+            if (random < 1)
+            {
+                clip = hit1;
+            }
+            else
+            {
+                clip = hit3;
+            }
+            gameObject.GetComponent<AudioSource>().PlayOneShot(clip);
+
+            isPlayingSound = true;
+            soundTimeout = 0.3f;
+        }
+    }
+        
 }

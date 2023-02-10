@@ -2,20 +2,31 @@ using UnityEngine;
 
 public class Dodge : MonoBehaviour
 {
+    public AudioClip dash;
+    public AudioClip fail;
+    AudioSource audio;
+    bool hasFailedDodging = false;
+
     public bool isDodging = false;
     public bool canDodge = true;
-    float dodgeSpeed = 20f;
-    float dodgeDuration = 0.3f;
-    public float dodgeTimeout = 1.5f;
+    public float dodgeSpeed = 30f;
+    float dodgeDuration = 0.2f;
+    public float dodgeTimeout = 1f;
     float dodgeTimer = 0f;
     Rigidbody2D body;
     CapsuleCollider2D col;
+
+    public GameObject ghost;
+    private Transform startPosition;
+    private PlayerMovement playerMovement;
     
     void Start()
     {
         body = gameObject.GetComponent<Rigidbody2D>();
         col = gameObject.GetComponent<CapsuleCollider2D>();
         dodgeTimer = dodgeTimeout;
+        audio = gameObject.GetComponent<AudioSource>();
+        playerMovement = gameObject.GetComponent<PlayerMovement>();
     }
 
     void Update()
@@ -32,6 +43,10 @@ public class Dodge : MonoBehaviour
         if (isDodging)
         {
             body.velocity *= 0.9f;
+
+            GameObject ghostFrame = Instantiate(ghost, startPosition);
+            ghostFrame.GetComponent<DodgeGhost>().head.GetComponent<SpriteRenderer>().sprite = playerMovement.headSprite.sprite;
+
             if (dodgeTimer >= dodgeDuration)
             {
                 StopDodging();
@@ -43,7 +58,14 @@ public class Dodge : MonoBehaviour
             if (canDodge)
             {
                 StartDodging();
-            }       
+                hasFailedDodging = false;
+            }
+            else if (!hasFailedDodging)
+            {
+                audio.volume = 0.1f;
+                audio.PlayOneShot(fail);
+                hasFailedDodging = true;
+            }
         }
     }
 
@@ -58,6 +80,11 @@ public class Dodge : MonoBehaviour
             body.velocity = inputDodgeVelocity * dodgeSpeed;
             col.enabled = false;
             dodgeTimer = 0f;
+
+            audio.volume = 0.15f;
+            audio.PlayOneShot(dash);
+
+            startPosition = transform;
         }       
     }
 

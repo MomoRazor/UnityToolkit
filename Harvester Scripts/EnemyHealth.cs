@@ -20,6 +20,12 @@ public class EnemyHealth : MonoBehaviour
     public string enemyType;
     Persistor persistor;
 
+    private bool hasDied = false;
+    private float deathDuration = 0.25f;
+    private float deathTimer = 0f;
+    Vector3 defaultScale;
+    Vector3 deathPosition;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -30,15 +36,32 @@ public class EnemyHealth : MonoBehaviour
         gC = GameObject.FindGameObjectWithTag("GameController");
         sK = gC.GetComponent<ScoreKeeper>();
         persistor = GameObject.FindGameObjectWithTag("Persistor").GetComponent<Persistor>();
+        
+        deathTimer = deathDuration;
+        defaultScale = transform.localScale;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         healthBarDisplayTimer += Time.deltaTime;
         if (healthBarDisplayTimer >= healthBarDisplayDuration)
         {
             healthBarDisplayTimer = 0f;
             healthBar.HideHealthBar();
+        }
+
+        if (hasDied)
+        {
+            deathTimer -= Time.deltaTime;
+            healthBar.HideHealthBar();
+
+            transform.localScale = new Vector3(defaultScale.x, defaultScale.y * deathTimer / deathDuration, defaultScale.z);
+            transform.position = new Vector3(deathPosition.x, (deathPosition.y - 1) + transform.localScale.y / defaultScale.y, deathPosition.z);
+
+            if (deathTimer <= 0)
+            {
+                FinishDying();
+            }
         }
     }
 
@@ -55,13 +78,23 @@ public class EnemyHealth : MonoBehaviour
         healthBarDisplayTimer = 0f;
         if (currentHealth <= 0)
         {
-            die();
+            StartDying();
         }
         
     }
 
-    void die(){       
-        if(_slime)
+    void StartDying()
+    {
+        if (!hasDied)
+        {
+            hasDied = true;
+            deathPosition = transform.position;
+        }
+    }
+
+    void FinishDying()
+    {
+        if (_slime)
         {
             _slime.alertParentOnDeath();
         }
@@ -69,18 +102,12 @@ public class EnemyHealth : MonoBehaviour
         dZ.PushBackRadius(0.3f);
         sK.addScore(enemyType);
 
-        // TODO: add to momentum bar
-
-        if(enemyType == "boss"){
+        if (enemyType == "boss")
+        {
             persistor.win();
-            SceneManager.LoadScene(4);
+            SceneManager.LoadScene(4);                       
         }
-
 
         Destroy(gameObject);
     }
-
-   
-
-    
 }

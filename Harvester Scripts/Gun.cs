@@ -16,29 +16,40 @@ public abstract class Gun : MonoBehaviour
     public int ammo = 100;
     public float bulletStartOffset = 0.75f;
 
-    private int currentHeat = 0;
     private GameObject _target;
-    private float _lastFired = 0f;
-    private bool _heated = false;
+    public int currentHeat = 0;  
+    public float _lastFired = 0f;
+    public bool _heated = false;
+
+    public bool isFiring = false;
+    public bool isShootingBlanks = false;
+
+    SpriteRenderer renderer;
 
     void Start()
     {
-        SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
+        renderer = gameObject.GetComponent<SpriteRenderer>();
         if(hideGun && renderer){
             renderer.enabled = false;
         }
     }
 
     void Update(){
-        if(hasCooldown){
-            if(Time.timeSinceLevelLoad - _lastFired >= cooldownPeriod){
-                _lastFired = Time.timeSinceLevelLoad;
-                if(currentHeat > 0){
-                    currentHeat--;
-                }else {
-                    _heated = false;
-                }
-            }
+        
+        if (isFiring)
+        {
+            isFiring = false;
+        }
+        if (isShootingBlanks)
+        {
+            isShootingBlanks = false;
+        }
+
+        // heat coloring
+        if (hasCooldown)
+        {
+            float heatColorLevel = ((float)currentHeat / (float)heatLimit) * -0.5f + 1;
+            renderer.color = new Color(1, heatColorLevel, heatColorLevel);
         }
     }
 
@@ -55,6 +66,11 @@ public abstract class Gun : MonoBehaviour
     }
 
     public bool checkIfCanFire(){
+        if (checkRateOfFire() && checkAmmo() && !checkCooldown()){
+            isShootingBlanks = true;
+            isFiring = false;
+        }
+        
         if(checkRateOfFire() && checkAmmo() && checkCooldown()){
             _lastFired = Time.timeSinceLevelLoad;
             if(hasCooldown){
@@ -66,8 +82,11 @@ public abstract class Gun : MonoBehaviour
             if(limitedAmmo){
                 ammo--;
             }
+            isFiring = true;
+            isShootingBlanks = false;
             return true;
         }else{
+            isFiring = false;
             return false;
         }
     }

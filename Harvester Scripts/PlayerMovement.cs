@@ -55,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (direction.x > 0){
             legs.GetComponent<SpriteRenderer>().flipX = false;
+            gameObject.GetComponent<PlayerHealth>().skeleton.GetComponent<SpriteRenderer>().flipX = false;
 
             if (direction.y > 0){
                 if (dodge.canDodge)
@@ -77,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else{
             legs.GetComponent<SpriteRenderer>().flipX = true;
+            gameObject.GetComponent<PlayerHealth>().skeleton.GetComponent<SpriteRenderer>().flipX = true;
 
             if (direction.y > 0){
                 if (dodge.canDodge)

@@ -39,6 +39,12 @@ public class ShooterMovement : MonoBehaviour
         {
             spriteRenderer.flipX = false;
         }
+
+        // fix for getting pushed on dodging
+        if (body.velocity.magnitude > speed * 2)
+        {
+            body.velocity = Vector3.zero;
+        }
     }
 
     void FixedUpdate()
